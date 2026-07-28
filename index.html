@@ -542,7 +542,7 @@ body.no-scroll { overflow: hidden; }
     <span class="icon">🔤</span><span class="label">每日英语</span>
   </div>
   <div class="nav-item" data-page="checkin" onclick="switchPage('checkin')">
-    <span class="icon">📝</span><span class="label">每日打卡</span>
+    <span class="icon">📖</span><span class="label">每日阅读</span>
   </div>
   <div class="nav-item" data-page="sport" onclick="switchPage('sport')">
     <span class="icon">🏃</span><span class="label">每日运动</span>
@@ -577,13 +577,6 @@ body.no-scroll { overflow: hidden; }
     <div>🔧 补完作业 → 领杀虫剂清除小狗熊</div>
   </div>
 
-  <!-- ★ 数据备份/恢复（防止换网址丢数据）-->
-  <div class="card" style="background:linear-gradient(135deg,#FFF3E0,#FFE0B2);border:3px solid #FFB74D;">
-    <div style="font-size:18px;font-weight:800;color:#E65100;margin-bottom:10px;">💾 数据备份</div>
-    <div style="font-size:14px;color:#BF360C;margin-bottom:12px;">换网址前点「备份」，新网址打开后点「恢复」，数据就不丢了！</div>
-    <button class="big-btn" style="background:linear-gradient(135deg,#FF9800,#F57C00);margin-top:4px;" onclick="backupData()">📤 备份数据</button>
-    <button class="big-btn" style="background:linear-gradient(135deg,#42A5F5,#1976D2);margin-top:4px;" onclick="restoreData()">📥 恢复数据</button>
-  </div>
 </div>
 
 <!-- ============================================================ -->
@@ -659,19 +652,19 @@ body.no-scroll { overflow: hidden; }
 </div>
 
 <!-- ============================================================ -->
-<!-- 页面5：每日打卡                                               -->
+<!-- 页面5：每日阅读                                               -->
 <!-- ============================================================ -->
 <div id="page-checkin" class="page">
-  <div class="page-title">📝 每日打卡</div>
+  <div class="page-title">📖 每日阅读</div>
   <div class="date-bar" id="checkin-date"></div>
 
   <div class="task-card checkin">
     <div class="task-icon" id="ci-icon">⭕</div>
-    <div class="task-title" style="color:#2E7D32;">每日签到打卡</div>
-    <div class="task-desc" style="color:#388E3C;">坚持每天打卡，连续3天可换护盾！</div>
-    <button class="big-btn" id="ci-btn" onclick="doCheckin()">今日打卡</button>
+    <div class="task-title" style="color:#2E7D32;">每日阅读打卡</div>
+    <div class="task-desc" style="color:#388E3C;">坚持每天阅读30分钟，连续3天可换护盾！</div>
+    <button class="big-btn" id="ci-btn" onclick="doCheckin()">阅读完成打卡</button>
   </div>
-  <div class="tip-card">💡 连续打卡3天可以兑换一个护盾，护盾能抵挡一次小狗熊攻击！</div>
+  <div class="tip-card">💡 连续阅读打卡3天可以兑换一个护盾，护盾能抵挡一次小狗熊攻击！</div>
 </div>
 
 <!-- ============================================================ -->
@@ -1574,69 +1567,6 @@ function closeDialog() {
 
 function closeMask(e) {
   if (e.target.id === 'mask') closeDialog();
-}
-
-// ============================================================
-//  ★ 数据备份/恢复功能（防止换网址丢数据）
-// ============================================================
-
-// ===== 备份数据：把所有 localStorage 数据打包成一串码 =====
-function backupData() {
-  const allData = {};
-  for (let i = 0; i < localStorage.length; i++) {
-    const key = localStorage.key(i);
-    allData[key] = localStorage.getItem(key);
-  }
-  // 转成 base64 编码的备份码
-  const backupStr = btoa(unescape(encodeURIComponent(JSON.stringify(allData))));
-  // 存到剪贴板
-  if (navigator.clipboard) {
-    navigator.clipboard.writeText(backupStr).then(() => {
-      showDialog('💾 备份成功', '备份数据已复制到剪贴板！\n\n请把这串码粘贴到备忘录或微信发给自己保存：\n\n' + backupStr.substring(0, 80) + '...\n\n（已自动复制完整内容）', '好的');
-    }).catch(() => {
-      showBackupDialog(backupStr);
-    });
-  } else {
-    showBackupDialog(backupStr);
-  }
-}
-
-function showBackupDialog(backupStr) {
-  const html = '<div class="dialog-title">💾 备份数据</div>' +
-    '<div class="dialog-text">请长按下面的文字全选复制，粘贴到备忘录或微信保存：</div>' +
-    '<textarea style="width:100%;height:120px;font-size:12px;padding:10px;border:2px solid #ddd;border-radius:8px;-webkit-user-select:text;user-select:text;" readonly onclick="this.select()">' + backupStr + '</textarea>' +
-    '<button class="big-btn" onclick="closeDialog()">已保存</button>';
-  showCustomDialog(html);
-}
-
-// ===== 恢复数据：输入备份码，恢复所有数据 =====
-function restoreData() {
-  const html = '<div class="dialog-title">📥 恢复数据</div>' +
-    '<div class="dialog-text">请粘贴之前备份的码：</div>' +
-    '<textarea id="restore-input" style="width:100%;height:100px;font-size:12px;padding:10px;border:2px solid #ddd;border-radius:8px;-webkit-user-select:text;user-select:text;" placeholder="把备份码粘贴到这里..."></textarea>' +
-    '<button class="big-btn" style="background:linear-gradient(135deg,#42A5F5,#1976D2);" onclick="doRestore()">恢复数据</button>' +
-    '<button class="big-btn" style="background:#ccc;" onclick="closeDialog()">取消</button>';
-  showCustomDialog(html);
-}
-
-function doRestore() {
-  const input = document.getElementById('restore-input').value.trim();
-  if (!input) {
-    showDialog('提示', '请粘贴备份码！', '好的');
-    return;
-  }
-  try {
-    const allData = JSON.parse(decodeURIComponent(escape(atob(input))));
-    // 恢复所有数据
-    for (const key in allData) {
-      localStorage.setItem(key, allData[key]);
-    }
-    closeDialog();
-    showDialog('🎉 恢复成功', '数据已恢复！即将刷新页面...', '好的');
-    setTimeout(() => { location.reload(); }, 1500);
-  } catch (e) {
-    showDialog('❌ 恢复失败', '备份码格式错误，请检查是否复制完整。', '好的');
-  }
 }
 
 // ============================================================
